@@ -12,11 +12,13 @@ else:
     subtraction=x-y
     multiplication=x*y
     division=x/y
+    remainder=x%y
     operation_1=addition
     operation_2=subtraction
     operation_3=multiplication
     operation_4=division
-    print("1=addition,2=subtraction,3=multiplication,4=division")
+    operation_5=remainder
+    print("1=addition,2=subtraction,3=multiplication,4=division,5=remainder")
     operation_user=int(input("Select your operation"))
     if operation_user==1:
         print(operation_1)
@@ -26,6 +28,8 @@ else:
         print(operation_3)
     elif operation_user==4:
         print(operation_4)
+    elif operation_user==5:
+        print(operation_5)
     else:
         print("invalid operation")
 exiting_code=int(input("Press 99 to exit the code"))
@@ -49,7 +53,8 @@ else:
     operation_2=subtraction
     operation_3=multiplication
     operation_4=division
-    print("1=addition,2=subtraction,3=multiplication,4=division")
+    operation_5=remainder
+    print("1=addition,2=subtraction,3=multiplication,4=division,5=remainder")
     operation_user=int(input("Select your operation"))
     if operation_user==1:
         print(operation_1)
@@ -59,6 +64,8 @@ else:
         print(operation_3)
     elif operation_user==4:
         print(operation_4)
+    elif operation_user==5: 
+        print(operation_5)
     else:
         print("invalid operation")
 exiting_code=int(input("Press 99 to exit the code"))
