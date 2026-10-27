@@ -33,4 +33,7 @@ while True:
                   print(operation_5)
              else:
                   print("invalid operation")
+             exiting_code=int(input("Press 99 to exit the code"))
+             if exiting_code==99:
+                 sys.exit()
 
