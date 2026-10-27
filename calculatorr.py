@@ -5,7 +5,8 @@ x=int(input("Enter your first number "))
 y=int(input("Enter your second number "))
 print("1st number is",x)
 print("second number is",y) 
-
+while True:
+    
 if y==0:
     print("invalid number")
 else:
