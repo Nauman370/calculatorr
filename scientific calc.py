@@ -33,7 +33,12 @@ while True:
                   print(operation_5)
              else:
                   print("invalid operation")
-             exiting_code=(input("Press Y/N to exit/continue the Program"))
-             if exiting_code=='Y':
+             exiting_code=int(input("Do you want to exit? 1= yes"))
+             if exiting_code== 1:
                  sys.exit()
+
+
+
+            
+                  
 
