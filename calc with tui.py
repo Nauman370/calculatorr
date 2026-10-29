@@ -91,7 +91,6 @@ class Calculator(App):
         yield Footer()
 
     def on_mount(self) -> None:
-        # Default starting point when app opens
         self.last_active_input_id = "first-number"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -99,8 +98,6 @@ class Calculator(App):
 
         if btn_id == "quit-button":
             sys.exit()
-
-        # Target the text box that was highlighted last
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
 
         if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete"]:
