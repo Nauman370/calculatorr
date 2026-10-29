@@ -9,11 +9,7 @@ class TrackedInput(Input):
     def on_focus(self, event: events.Focus) -> None:
 
      self.app.last_active_input_id = self.id
-
-
 class Calculator(App):
-    "A Basic Calculator"
-
     CSS = """
     Screen{
         align: center middle;
@@ -58,7 +54,6 @@ class Calculator(App):
         border: $success;
     }
     """
-
     def compose(self) -> ComposeResult:
         yield Header()
         with Vertical():
@@ -89,17 +84,13 @@ class Calculator(App):
             yield Static("Answer", id="result-box")
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
-
     def on_mount(self) -> None:
         self.last_active_input_id = "first-number"
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
-
         if btn_id == "quit-button":
             sys.exit()
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-
         if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete"]:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
@@ -109,28 +100,23 @@ class Calculator(App):
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
             return
-
         Number_1st = self.query_one("#first-number", Input).value
         Number_2nd = self.query_one("#second-number", Input).value
         result_box = self.query_one("#result-box", Static)
-
         try:
             x = int(Number_1st)
             y = int(Number_2nd)
         except ValueError:
             result_box.update("Please enter a number")
             return
-
         if y == 0 and btn_id in ["operation-4", "operation-5"]:
             result_box.update("Math error")
             return
-
         addition = x + y
         subtraction = x - y
         multiplication = x * y
         division = x / y
         remainder = x % y
-
         if btn_id == "operation-1":
             result_box.update(f"result:{addition}")
         elif btn_id == "operation-2":
@@ -141,11 +127,6 @@ class Calculator(App):
             result_box.update(f"result:{division}")
         elif btn_id == "operation-5":
             result_box.update(f"result:{remainder}")
-
-
 if __name__ == "__main__":
     app = Calculator()
     app.run()
-
-
-
