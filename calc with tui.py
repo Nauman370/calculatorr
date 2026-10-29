@@ -6,9 +6,9 @@ from textual.containers import Grid, Vertical, Horizontal
 
 
 class TrackedInput(Input):
-    """An Input that tells the app whenever it gains focus."""
     def on_focus(self, event: events.Focus) -> None:
-        self.app.last_active_input_id = self.id
+
+     self.app.last_active_input_id = self.id
 
 
 class Calculator(App):
