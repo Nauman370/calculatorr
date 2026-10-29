@@ -42,8 +42,7 @@ class Calculator(App):
         yield Header()
         with Vertical():
             yield Static("Calculator",id="title")
-            yield Static("==================",id="line")
-            
+                 
             yield Input(placeholder="Enter your first number",id="first-number")
             yield Input(placeholder="Enter your second number",id="second-number")
             yield Static("1=addition,2=subtraction,3=multiplication,4=division,5=remainder",id="operations")
