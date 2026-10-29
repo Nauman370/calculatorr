@@ -83,7 +83,8 @@ class Calculator(App):
         btn_id=event.button.id
         if btn_id=="quit-button":
             sys.exit()
-        if
+        if btn_id.startswith("num-") or btn_id in ["remove-everything","delete"]:
+            
 
 
 
