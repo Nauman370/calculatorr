@@ -28,31 +28,16 @@ class Calculator(App):
         margin: 0 1;
         min-width: 10;
     }
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    Grid{
+        grid-size: 3 4;
+        grid-gutter: 1;
+        height: 12;
+        margin-bottom: 1;
+    }
+    Grid Button{
+        width: 100%;
+        height: 100%;
+    }
     #result-box {
         margin-top: 1;
         padding: 1;
@@ -70,6 +55,20 @@ class Calculator(App):
                  
             yield Input(placeholder="Enter your first number",id="first-number")
             yield Input(placeholder="Enter your second number",id="second-number")
+            yield Static("Enter your numbers:")
+            with Grid():
+                yield Button("1",variant="primary",id="num-1")
+                yield Button("2",variant="primary",id="num-2")
+                yield Button("3",variant="primary",id="num-3")
+                yield Button("4",variant="primary",id="num-4")
+                yield Button("5",variant="primary",id="num-5")
+                yield Button("6",variant="primary",id="num-6")
+                yield Button("7",variant="primary",id="num-7")
+                yield Button("8",variant="primary",id="num-8")
+                yield Button("9",variant="primary",id="num-9")
+                yield Button("0",variant="primary",id="num-0")
+                yield Button("AC",variant="error",id="remove-everything")
+                yield Button("Remove",variant="error",id="delete")
             yield Static("Select your operation:",id="selected-operation")
 
             with Horizontal():
