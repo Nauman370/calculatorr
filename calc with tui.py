@@ -28,6 +28,31 @@ class Calculator(App):
         margin: 0 1;
         min-width: 10;
     }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     #result-box {
         margin-top: 1;
         padding: 1;
@@ -45,7 +70,6 @@ class Calculator(App):
                  
             yield Input(placeholder="Enter your first number",id="first-number")
             yield Input(placeholder="Enter your second number",id="second-number")
-            yield Static("1=addition,2=subtraction,3=multiplication,4=division,5=remainder",id="operations")
             yield Static("Select your operation:",id="selected-operation")
 
             with Horizontal():
@@ -91,7 +115,6 @@ class Calculator(App):
 if __name__=="__main__":
     app=Calculator()
     app.run()
-
 
 
 
