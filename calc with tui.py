@@ -1,7 +1,7 @@
 import sys
 from textual.app import App , ComposeResult
 from textual.widgets import Header,Static,Button,Footer,Input
-from textual.containers import Vertical, Horizontal
+from textual.containers import Grid, Vertical, Horizontal
 class Calculator(App):
     "A Basic Calculator"
     CSS = """
@@ -70,7 +70,6 @@ class Calculator(App):
                 yield Button("AC",variant="error",id="remove-everything")
                 yield Button("Remove",variant="error",id="delete")
             yield Static("Select your operation:",id="selected-operation")
-
             with Horizontal():
                 yield Button("+",variant="primary",id="operation-1")
                 yield Button("-",variant="primary",id="operation-2")
@@ -84,6 +83,11 @@ class Calculator(App):
         btn_id=event.button.id
         if btn_id=="quit-button":
             sys.exit()
+        if
+
+
+
+        
         Number_1st=self.query_one("#first-number",Input).value
         Number_2nd=self.query_one("#second-number",Input).value
         result_box=self.query_one("#result-box",Static)
