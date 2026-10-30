@@ -157,7 +157,7 @@ class Calculator(App):
 
     def on_mount(self) -> None:
         if os.path.exists("background.png"):
-            self.bg_image = Image.open("background.png").convert("RGB")
+            self.bg_image = Image.open("bg.png").convert("RGB")
         self.call_after_refresh(self.update_background)
 
     def on_resize(self, event: events.Resize) -> None:
