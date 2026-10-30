@@ -1,4 +1,5 @@
 import sys
+import math
 from textual import events
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Static, Button, Footer, Input
@@ -7,8 +8,29 @@ from textual.containers import Grid, Vertical, Horizontal
 
 class TrackedInput(Input):
     def on_focus(self, event: events.Focus) -> None:
-
      self.app.last_active_input_id = self.id
+def clean_result(value)-> str:
+    if isinstance(value, float):
+        value = round(value,10)
+        if value.is_integer():
+            return str(int(value))
+        return str(value)
+def factorial(v):
+    if v<0 or not v.is_integer():
+        raise ValueError("Math error")
+    return math.factorial(int(v))
+Functions={
+    "sqrt": lambda x : math.sqrt(x),
+    "sin": lambda x : math.sin(math.radians(x)),
+    "cos": lambda x : math.cos(math.radians(x)),
+    "tan": lambda x : math.tan(math.radians(x)),
+    "log": lambda x : math.log10(x),
+    "fact":factorial,
+    "ln": lambda x : math.log(x),
+    "square": lambda x: (x*x)
+}
+
+        
 class Calculator(App):
     CSS = """
     Screen{
@@ -17,8 +39,8 @@ class Calculator(App):
     Vertical{
         width: 60;
         height: auto;
-        background: purple;
-        border: $primary;
+        background: black;
+        border: round white;
         padding: 1 2;
     }
     Input{
@@ -51,7 +73,7 @@ class Calculator(App):
         text-style: italic;
         content-align: center middle;
         background: $surface;
-        border: $success;
+        border: round white;
     }
     """
     def compose(self) -> ComposeResult:
@@ -74,7 +96,15 @@ class Calculator(App):
                 yield Button("0", variant="primary", id="num-0")
                 yield Button("AC", variant="error", id="remove-everything")
                 yield Button("Remove", variant="error", id="delete")
+                yield Button(".",variant="primary",id="decimal")
+                yield Button("+/-",variant="primary", id="plus-minus")
             yield Static("Select your operation:", id="selected-operation")
+            with Horixontal():
+                yield Button("sin",variant="success",id="func-sin")
+                yield Button("cos",variant="success",id="func-cos")
+                yield Button("tan",variant="success",id="func-tan")
+                yield Button("√",variant="success",id="func-sqrt")
+            with Horizontal
             with Horizontal():
                 yield Button("+", variant="primary", id="operation-1")
                 yield Button("-", variant="primary", id="operation-2")
@@ -112,21 +142,16 @@ class Calculator(App):
         if y == 0 and btn_id in ["operation-4", "operation-5"]:
             result_box.update("Math error")
             return
-        addition = x + y
-        subtraction = x - y
-        multiplication = x * y
-        division = x / y
-        remainder = x % y
         if btn_id == "operation-1":
-            result_box.update(f"result:{addition}")
+            result_box.update(f"result:{x + y}")
         elif btn_id == "operation-2":
-            result_box.update(f"result:{subtraction}")
+            result_box.update(f"result:{x-y}")
         elif btn_id == "operation-3":
-            result_box.update(f"result:{multiplication}")
+            result_box.update(f"result:{x*y}")
         elif btn_id == "operation-4":
-            result_box.update(f"result:{division}")
+            result_box.update(f"result:{x/y}")
         elif btn_id == "operation-5":
-            result_box.update(f"result:{remainder}")
+            result_box.update(f"result:{x%y}")
 if __name__ == "__main__":
     app = Calculator()
     app.run()
