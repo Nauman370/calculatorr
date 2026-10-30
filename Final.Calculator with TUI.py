@@ -156,7 +156,7 @@ class Calculator(App):
         yield Footer()
 
     def on_mount(self) -> None:
-        if os.path.exists("background.png"):
+        if os.path.exists("bg.png"):
             self.bg_image = Image.open("bg.png").convert("RGB")
         self.call_after_refresh(self.update_background)
 
