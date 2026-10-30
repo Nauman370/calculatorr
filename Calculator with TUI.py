@@ -31,7 +31,7 @@ Functions={
 }
 Shift_Functions={
     "sin": lambda x : math.degrees(math.asin(x)),
-    "cos": lambda x : math.acos(math.acos(x)),
+    "cos": lambda x : math.degrees(math.acos(x)),
     "tan": lambda x : math.degrees(math.atan(x)),
     "log": lambda x : 10**x
 }
@@ -115,7 +115,7 @@ class Calculator(App):
                 yield Button("log",variant="success",id="func-log")
                 yield Button("n!",variant="success",id="func-fact")
                 yield Button("ln",variant="success",id="func-ln")
-                yield Button("a^a",variant="success",id="func-square")
+                yield Button("a^2",variant="success",id="func-square")
 
             with Horizontal():
                 yield Button("+", variant="primary", id="operation-1")
@@ -136,7 +136,17 @@ class Calculator(App):
             sys.exit()
         if btn_id=="shift-toggle":
             self.shift_on=not self.shift_on
-            return
+            labels = {
+                "sin":("sin","sin^-1"),
+                "cos":("cos","cos^-1"),
+                "tan":("tan","tan^-1"),
+                "log":("log","10^x")
+            }
+            for name, (normal,shifted) in labels.items():
+                self.query_one(f"#func-{name}",Button).label=shifted if self.shift_on else normal
+
+
+
         
         
 
