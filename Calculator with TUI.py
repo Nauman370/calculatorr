@@ -34,9 +34,7 @@ Shift_Functions={
     "cos": lambda x : math.degrees(math.acos(x)),
     "tan": lambda x : math.degrees(math.atan(x)),
     "log": lambda x : 10**x
-}
-
-        
+}  
 class Calculator(App):
     CSS = """
     Screen{
@@ -116,7 +114,6 @@ class Calculator(App):
                 yield Button("n!",variant="success",id="func-fact")
                 yield Button("ln",variant="success",id="func-ln")
                 yield Button("a^2",variant="success",id="func-square")
-
             with Horizontal():
                 yield Button("+", variant="primary", id="operation-1")
                 yield Button("-", variant="primary", id="operation-2")
@@ -144,12 +141,6 @@ class Calculator(App):
             }
             for name, (normal,shifted) in labels.items():
                 self.query_one(f"#func-{name}",Button).label=shifted if self.shift_on else normal
-
-
-
-        
-        
-
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
         if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete","decimal","plus-minus"]:
             if btn_id == "remove-everything":
@@ -181,9 +172,6 @@ class Calculator(App):
             except(ValueError,ZeroDivisionError):
                 result_box.update("Math Error")
             return
-                
-             
-            
         Number_1st = self.query_one("#first-number", Input).value
         Number_2nd = self.query_one("#second-number", Input).value
         result_box = self.query_one("#result-box", Static)
