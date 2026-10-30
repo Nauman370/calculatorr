@@ -1,3 +1,14 @@
 calculator.py
 calculatorr.py
 calculatorr.py
+build/dist/
+build/Calculator with TUI/Analysis-00.toc
+build/Calculator with TUI/base_library.zip
+build/Calculator with TUI/EXE-00.toc
+build/Calculator with TUI/Calculator with TUI.pkg
+*.pyc
+*.toc
+build/Calculator with TUI/xref-Calculator with TUI.html
+build/Calculator with TUI/warn-Calculator with TUI.txt
+dist/Calculator with TUI.exe
+build/Calculator with TUI/PYZ-00.pyz
