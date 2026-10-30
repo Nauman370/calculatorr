@@ -1,4 +1,7 @@
 import math
+import os
+from PIL import Image
+from rich_pixels import Pixels
 from textual import events
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Static, Button, Footer, Input
@@ -80,6 +83,9 @@ class Calculator(App):
     }
     """
     def compose(self) -> ComposeResult:
+        if os.path.exists("fox.png"):
+            yield Static(Pixels.from_image(Image.open("fox.png"),resize=(24,24)),id="fox")
+        yield Static
         yield Header()
         with Vertical():
             yield Static("Calculator", id="title")
