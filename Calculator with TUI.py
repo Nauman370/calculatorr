@@ -187,19 +187,20 @@ class Calculator(App):
             result_box.update("Math error")
             return
          if btn_id == "operation-1":
-            result_box.update(f"result:{x + y}")
+            answer=x+y
          elif btn_id == "operation-2":
-            result_box.update(f"result:{x-y}")
+            answer=x-y
          elif btn_id == "operation-3":
-            result_box.update(f"result:{x*y}")
+            answer=x*y
          elif btn_id == "operation-4":
-            result_box.update(f"result:{x/y}")
+            answer=x/y
          elif btn_id == "operation-5":
-            result_box.update(f"result:{x%y}")
+            answer=x%y
          elif btn_id == "operation-6":
-            result_box.update(f"result:{math.pow(x,y)}")
+            answer=math.pow(x,y)
+         result_box.update(f"result:{clean_result(answer)}")
         except(ValueError,ZeroDivisionError):
-            result_box.update("Math Error")
+            result_box.update("")
 if __name__ == "__main__":
     app = Calculator()
     app.run()
