@@ -1,4 +1,3 @@
-import sys
 import math
 from textual import events
 from textual.app import App, ComposeResult
@@ -130,7 +129,7 @@ class Calculator(App):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
         if btn_id =="quit-button":
-            sys.exit()
+            self.exit()
         if btn_id=="shift-toggle":
             self.shift_on=not self.shift_on
             labels = {
@@ -141,6 +140,7 @@ class Calculator(App):
             }
             for name, (normal,shifted) in labels.items():
                 self.query_one(f"#func-{name}",Button).label=shifted if self.shift_on else normal
+            return
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
         if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete","decimal","plus-minus"]:
             if btn_id == "remove-everything":
@@ -200,7 +200,7 @@ class Calculator(App):
             answer=math.pow(x,y)
          result_box.update(f"result:{clean_result(answer)}")
         except(ValueError,ZeroDivisionError):
-            result_box.update("")
+            result_box.update("Math error")
 if __name__ == "__main__":
     app = Calculator()
     app.run()
