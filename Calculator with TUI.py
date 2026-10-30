@@ -14,7 +14,7 @@ def clean_result(value)-> str:
         value = round(value,10)
         if value.is_integer():
             return str(int(value))
-        return str(value)
+    return str(value)
 def factorial(v):
     if v<0 or not v.is_integer():
         raise ValueError("Math error")
@@ -57,9 +57,9 @@ class Calculator(App):
         min-width: 10;
     }
     Grid{
-        grid-size: 3 4;
+        grid-size: 3 5;
         grid-gutter: 1;
-        height: 15;
+        height: 25;
         margin-bottom: 1;
     }
     Grid Button{
@@ -99,12 +99,17 @@ class Calculator(App):
                 yield Button(".",variant="primary",id="decimal")
                 yield Button("+/-",variant="primary", id="plus-minus")
             yield Static("Select your operation:", id="selected-operation")
-            with Horixontal():
+            with Horizontal():
                 yield Button("sin",variant="success",id="func-sin")
                 yield Button("cos",variant="success",id="func-cos")
                 yield Button("tan",variant="success",id="func-tan")
                 yield Button("√",variant="success",id="func-sqrt")
-            with Horizontal
+            with Horizontal():
+                yield Button("log",variant="success",id="func-log")
+                yield Button("n!",variant="success",id="func-fact")
+                yield Button("ln",variant="success",id="func-ln")
+                yield Button("a^a",variant="success",id="func-square")
+
             with Horizontal():
                 yield Button("+", variant="primary", id="operation-1")
                 yield Button("-", variant="primary", id="operation-2")
@@ -121,21 +126,42 @@ class Calculator(App):
         if btn_id == "quit-button":
             sys.exit()
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete"]:
+        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete","decimal","plus-minus"]:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
             elif btn_id == "delete":
                 focused_widget.value = focused_widget.value[:-1]
+            elif btn_id=="plus-minus":
+                if focused_widget.value.startswith("-"):
+                    focused_widget.value=focused_widget.value[1:]
+                else:
+                    focused_widget.value = "-" + focused_widget.value
+            elif btn_id=="decimal":
+                if "." not in focused_widget.value:
+                    focused_widget.value+="."
             else:
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
             return
+        result_box=self.query_one("#result-box", Static)
+        if btn_id.startswith("func-"):
+            name= btn_id.split("-")[1]
+            try:
+                x=float(self.query_one("#first-number",Input).value)
+                answer=Functions[name](x)
+                result_box.update(f"result:{clean_result(answer)}")
+            except(ValueError,ZeroDivisionError):
+                result_box.update("Math Error")
+            return
+                
+             
+            
         Number_1st = self.query_one("#first-number", Input).value
         Number_2nd = self.query_one("#second-number", Input).value
         result_box = self.query_one("#result-box", Static)
         try:
-            x = int(Number_1st)
-            y = int(Number_2nd)
+            x = float(Number_1st)
+            y = float(Number_2nd)
         except ValueError:
             result_box.update("Please enter a number")
             return
