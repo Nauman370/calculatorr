@@ -29,6 +29,12 @@ Functions={
     "ln": lambda x : math.log(x),
     "square": lambda x: (x*x)
 }
+Shift_Functions={
+    "sin": lambda x : math.degrees(math.asin(x)),
+    "cos": lambda x : math.acos(math.acos(x)),
+    "tan": lambda x : math.degrees(math.atan(x)),
+    "log": lambda x : 10**x
+}
 
         
 class Calculator(App):
@@ -37,7 +43,7 @@ class Calculator(App):
         align: center middle;
     }
     Vertical{
-        width: 60;
+        width: 72;
         height: auto;
         background: black;
         border: round white;
@@ -104,6 +110,7 @@ class Calculator(App):
                 yield Button("cos",variant="success",id="func-cos")
                 yield Button("tan",variant="success",id="func-tan")
                 yield Button("√",variant="success",id="func-sqrt")
+                yield Button("SHIFT",variant="success",id="shift-toggle")
             with Horizontal():
                 yield Button("log",variant="success",id="func-log")
                 yield Button("n!",variant="success",id="func-fact")
@@ -116,15 +123,23 @@ class Calculator(App):
                 yield Button("*", variant="primary", id="operation-3")
                 yield Button("/", variant="primary", id="operation-4")
                 yield Button("%", variant="primary", id="operation-5")
+                yield Button("x^y",variant="primary",id="operation-6")
             yield Static("Answer", id="result-box")
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
     def on_mount(self) -> None:
         self.last_active_input_id = "first-number"
+        self.shift_on=False
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
-        if btn_id == "quit-button":
+        if btn_id =="quit-button":
             sys.exit()
+        if btn_id=="shift-toggle":
+            self.shift_on=not self.shift_on
+            return
+        
+        
+
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
         if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete","decimal","plus-minus"]:
             if btn_id == "remove-everything":
@@ -148,7 +163,10 @@ class Calculator(App):
             name= btn_id.split("-")[1]
             try:
                 x=float(self.query_one("#first-number",Input).value)
-                answer=Functions[name](x)
+                if self.shift_on and name in Shift_Functions:
+                    answer=Shift_Functions[name](x)
+                else:
+                    answer=Functions[name](x)
                 result_box.update(f"result:{clean_result(answer)}")
             except(ValueError,ZeroDivisionError):
                 result_box.update("Math Error")
@@ -165,19 +183,25 @@ class Calculator(App):
         except ValueError:
             result_box.update("Please enter a number")
             return
-        if y == 0 and btn_id in ["operation-4", "operation-5"]:
+        try:
+
+         if y == 0 and btn_id in ["operation-4", "operation-5"]:
             result_box.update("Math error")
             return
-        if btn_id == "operation-1":
+         if btn_id == "operation-1":
             result_box.update(f"result:{x + y}")
-        elif btn_id == "operation-2":
+         elif btn_id == "operation-2":
             result_box.update(f"result:{x-y}")
-        elif btn_id == "operation-3":
+         elif btn_id == "operation-3":
             result_box.update(f"result:{x*y}")
-        elif btn_id == "operation-4":
+         elif btn_id == "operation-4":
             result_box.update(f"result:{x/y}")
-        elif btn_id == "operation-5":
+         elif btn_id == "operation-5":
             result_box.update(f"result:{x%y}")
+         elif btn_id == "operation-6":
+            result_box.update(f"result:{math.pow(x,y)}")
+        except(ValueError,ZeroDivisionError):
+            result_box.update("Math Error")
 if __name__ == "__main__":
     app = Calculator()
     app.run()
