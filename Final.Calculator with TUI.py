@@ -256,7 +256,7 @@ class Calculator(App):
         raw=[self.query_one(f"#{i}",Input).value.strip() for i in ids]
         filled=[v for v in  raw if v!=""]
         if len(filled)< 2:
-            result_box.update("Please Enter 2 numbers")
+            result_box.update("Please Enter numbers")
             return
         try:
             numbers=[float (v) for v in filled]
