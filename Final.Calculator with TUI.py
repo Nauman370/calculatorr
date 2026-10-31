@@ -180,9 +180,11 @@ class Calculator(App):
         yield Footer()
 
     def on_mount(self) -> None:
+
         bg_path = resource_path("bg.png")
         if os.path.exists(bg_path):
             self.bg_image = Image.open(bg_path).convert("RGB")
+            self.call_after_refresh(self.update_background)
 
     def on_resize(self, event:events.Resize) -> None:
         self.call_after_refresh(self.update_background)
@@ -243,7 +245,7 @@ class Calculator(App):
         if btn_id.startswith("func-"):
             name = btn_id.split("-")[1]
             try:
-                x = float(self.query_one("#first-number", Input).value)
+                x = float(self.query_one(f"#{self.last_active_input_id}", Input).value)
                 if self.shift_on and name in Shift_Functions:
                     answer = Shift_Functions[name](x)
                 else:
