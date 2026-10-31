@@ -1,4 +1,5 @@
 import math
+import sys
 import os
 from PIL import Image
 from rich_pixels import Pixels
@@ -6,6 +7,11 @@ from textual import events
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Static, Button, Footer, Input
 from textual.containers import Grid, Vertical, Horizontal
+
+def resource_path(filename):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, filename)
+    return filename
 
 
 class TrackedInput(Input):
@@ -25,6 +31,16 @@ def factorial(v):
     if v < 0 or not v.is_integer():
         raise ValueError("Math error")
     return math.factorial(int(v))
+def Quadratic_Formula(a,b,c):
+    discriminant= b**2-4*a*c
+    if discriminant<0:
+        result=None
+        return(result)
+    else:
+        root=math.sqrt(discriminant)
+        result_x1=(-b+root)/(2*a)
+        result_x2=(-b-root)/(2*a)
+        return (result_x1,result_x2)
 
 
 Functions = {
@@ -45,6 +61,10 @@ Shift_Functions = {
     "log": lambda x: 10 ** x,
 }
 
+Quadraticformula ={
+    "formula":  Quadratic_Formula
+}
+
 
 class Calculator(App):
     CSS = """
@@ -63,7 +83,7 @@ class Calculator(App):
     }
     Vertical{
         layer: ui;
-        width: 72;
+        width: 100;
         height: auto;
         background: black;
         border: round white;
@@ -116,6 +136,7 @@ class Calculator(App):
             yield Static("Calculator", id="title")
             yield TrackedInput(placeholder="Enter your first number", id="first-number")
             yield TrackedInput(placeholder="Enter your second number", id="second-number")
+            yield TrackedInput(placeholder="Enter your third number", id="third-number")
             yield Static("Enter your numbers:")
             with Grid():
                 yield Button("1", variant="primary", id="num-1")
@@ -151,14 +172,15 @@ class Calculator(App):
                 yield Button("/", variant="primary", id="operation-4")
                 yield Button("%", variant="primary", id="operation-5")
                 yield Button("x^y", variant="primary", id="operation-6")
+                yield Button ("Q.F", variant="primary",id="operation-7")
             yield Static("Answer", id="result-box")
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
 
     def on_mount(self) -> None:
-        if os.path.exists("bg.png"):
-            self.bg_image = Image.open("bg.png").convert("RGB")
-        self.call_after_refresh(self.update_background)
+        bg_path = resource_path("bg.png")
+        if os.path.exists(bg_path):
+            self.bg_image = Image.open(bg_path).convert("RGB")
 
     def on_resize(self, event: events.Resize) -> None:
         self.call_after_refresh(self.update_background)
@@ -228,9 +250,25 @@ class Calculator(App):
             except (ValueError, ZeroDivisionError, OverflowError):
                 result_box.update("Math Error")
             return
-
-        Number_1st = self.query_one("#first-number", Input).value
-        Number_2nd = self.query_one("#second-number", Input).value
+        if btn_id=="operation-7":
+            try:
+                a=float(self.query_one("#first-number", Input).value)
+                b=float(self.query_one("#second-number",Input).value)
+                c=float(self.query_one("#third-number",Input).value)
+                result=Quadratic_Formula(a,b,c)
+            except ValueError:
+                result_box.update("Please Enter a Number")
+                return
+            if result is None:
+                result_box.update("Imaginary Roots")
+            else:
+                x1,x2=result
+                result_box.update(f"x1:{clean_result(x1)} x2:{clean_result(x2)}")
+            return
+        Number_1st = float(self.query_one("#first-number", Input).value)
+        Number_2nd = float(self.query_one("#second-number", Input).value)
+        Number_3rd = float(self.query_one("#third-number",Input).value)
+        x1,x2=Quadratic_Formula(Number_1st,Number_2nd,Number_3rd)
         try:
             x = float(Number_1st)
             y = float(Number_2nd)

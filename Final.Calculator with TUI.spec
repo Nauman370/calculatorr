@@ -5,7 +5,7 @@ a = Analysis(
     ['Final.Calculator with TUI.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('bg.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
