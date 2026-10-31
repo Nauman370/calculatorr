@@ -16,10 +16,13 @@ I initially created it without a TUI and with only basic arithmetic I then devel
 ## Running from source
 
 Requires Python 3.10+ and [Textual](https://textual.textualize.io/).
+Requires the libraries rich-pixels and pillow
+
 
 ```bash
 pip install textual
-python "Calculator with TUI.py"
+pip install pillow rich-pixels
+python "Final.Calculator with TUI.py"
 ```
 
 ## Download a prebuilt app (no Python required)
