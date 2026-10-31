@@ -25,14 +25,6 @@ def clean_result(value) -> str:
         if value.is_integer():
             return str(int(value))
     return str(value)
-
-def show_result(self,text):
-    self.query_one("#result-box",Static).update(text)
-    self.history.append(text)
-    latest=self.history[-5:]
-    self.query_one("#history-box",Static).update("\n".join(latest))
-
-
 def factorial(v):
     if v < 0 or not v.is_integer():
         raise ValueError("Math error")
@@ -89,7 +81,7 @@ class Calculator(App):
     }
     Vertical{
         layer: ui;
-        width: 100;
+        width: 120;
         height: auto;
         background: black;
         border: round white;
@@ -109,7 +101,7 @@ class Calculator(App):
         min-width: 10;
     }
     Grid{
-        grid-size: 3 5;
+        grid-size: 3 6;
         grid-gutter: 1;
         height: 25;
         margin-bottom: 1;
@@ -127,6 +119,13 @@ class Calculator(App):
         background: $surface;
         border: round white;
     }
+    #history-box{
+        margin-top: 1;
+        padding: 1;
+        text-align: left;
+        text-style: bold;
+        background: $surface;
+        border: round green;}
     """
 
     def __init__(self):
@@ -134,7 +133,7 @@ class Calculator(App):
         self.bg_image = None
         self.last_active_input_id = "first-number"
         self.shift_on = False
-        self.history[]
+        self.history=[]
 
     def compose(self) -> ComposeResult:
         yield Static(id="bg")
@@ -145,7 +144,7 @@ class Calculator(App):
             yield TrackedInput(placeholder="Enter your second number", id="second-number")
             yield TrackedInput(placeholder="Enter your third number", id="third-number")
             yield Static("Enter your numbers:")
-            yield Static(placeholder="History",id="history-box")
+            yield Static("History",id="history-box")
             with Grid():
                 yield Button("1", variant="primary", id="num-1")
                 yield Button("2", variant="primary", id="num-2")
@@ -161,6 +160,8 @@ class Calculator(App):
                 yield Button("Remove", variant="error", id="delete")
                 yield Button(".", variant="primary", id="decimal")
                 yield Button("+/-", variant="primary", id="plus-minus")
+                yield Button("%",variant="primary",id="percentage")
+                yield Button("π",variant="primary",id="pi")
             yield Static("Select your operation:", id="selected-operation")
             with Horizontal():
                 yield Button("sin", variant="success", id="func-sin")
@@ -180,10 +181,16 @@ class Calculator(App):
                 yield Button("/", variant="primary", id="operation-4")
                 yield Button("%", variant="primary", id="operation-5")
                 yield Button("x^y", variant="primary", id="operation-6")
-                yield Button ("Q.F", variant="primary",id="operation-7")
+                yield Button("Q.F", variant="primary",id="operation-7")
             yield Static("Answer", id="result-box")
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
+
+    def show_result(self,text):
+         self.query_one("#result-box",Static).update(text)
+         self.history.append(text)
+         latest=self.history[-5:]
+         self.query_one("#history-box",Static).update("\n".join(latest))
 
     def on_mount(self) -> None:
 
@@ -228,7 +235,7 @@ class Calculator(App):
             return
 
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus"]:
+        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","percentage","pi"]:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
             elif btn_id == "delete":
@@ -241,6 +248,13 @@ class Calculator(App):
             elif btn_id == "decimal":
                 if "." not in focused_widget.value:
                     focused_widget.value += "."
+            elif btn_id =="percentage":
+                try:
+                    focused_widget=clean_result(float(focused_widget.value)/100)
+                except ValueError:
+                    pass
+            elif btn_id=="pi":
+                focused_widget.value=str(math.pi)
             else:
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
@@ -284,7 +298,7 @@ class Calculator(App):
                 result_box.update("Roots are imaginary")
             else:
                 x1,x2=result
-                result_box.update(f"# x1:{clean_result(x1)} x2: {clean_result(x2)}")
+                self.show_result(f"# x1:{clean_result(x1)} x2: {clean_result(x2)}")
             return
         if btn_id not in Operations:
             return
@@ -293,7 +307,7 @@ class Calculator(App):
             answer = numbers[0]
             for n in numbers[1:]:
                 answer = op(answer,n)
-                result_box.update(f"result:{clean_result(answer)}")
+                self.show_result(f"result:{clean_result(answer)}")
         except (ValueError, ZeroDivisionError, OverflowError):
             result_box.update("Math error")
 if __name__ == "__main__":
