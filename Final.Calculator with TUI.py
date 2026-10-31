@@ -26,6 +26,12 @@ def clean_result(value) -> str:
             return str(int(value))
     return str(value)
 
+def show_result(self,text):
+    self.query_one("#result-box",Static).update(text)
+    self.history.append(text)
+    latest=self.history[-5:]
+    self.query_one("#history-box",Static).update("\n".join(latest))
+
 
 def factorial(v):
     if v < 0 or not v.is_integer():
@@ -41,8 +47,6 @@ def Quadratic_Formula(a,b,c):
         result_x1=(-b+root)/(2*a)
         result_x2=(-b-root)/(2*a)
         return (result_x1,result_x2)
-
-
 Functions = {
     "sqrt": lambda x: math.sqrt(x),
     "sin": lambda x: math.sin(math.radians(x)),
@@ -130,6 +134,7 @@ class Calculator(App):
         self.bg_image = None
         self.last_active_input_id = "first-number"
         self.shift_on = False
+        self.history[]
 
     def compose(self) -> ComposeResult:
         yield Static(id="bg")
@@ -140,6 +145,7 @@ class Calculator(App):
             yield TrackedInput(placeholder="Enter your second number", id="second-number")
             yield TrackedInput(placeholder="Enter your third number", id="third-number")
             yield Static("Enter your numbers:")
+            yield Static(placeholder="History",id="history-box")
             with Grid():
                 yield Button("1", variant="primary", id="num-1")
                 yield Button("2", variant="primary", id="num-2")
@@ -250,7 +256,7 @@ class Calculator(App):
                     answer = Shift_Functions[name](x)
                 else:
                     answer = Functions[name](x)
-                result_box.update(f"result:{clean_result(answer)}")
+                self.show_result(f"result:{clean_result(answer)}")
             except (ValueError, ZeroDivisionError, OverflowError):
                 result_box.update("Math Error")
             return
