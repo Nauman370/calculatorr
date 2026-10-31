@@ -28,7 +28,7 @@ def clean_result(value) -> str:
             return str(int(value))
     return str(value)
 def factorial(v):
-    if v < 0 or not v.is_integer():
+    if v < 0 or not v.is_integer() or v>10000:
         raise ValueError("Math error")
     return math.factorial(int(v))
 def Quadratic_Formula(a,b,c):
@@ -77,6 +77,15 @@ Symbols={
     "new-pow":"**"
 
     }
+Symbols_ops={
+    "new-plus": operator.add,
+    "new-minus": operator.sub,
+    "new-multi": operator.mul,
+    "new-div": operator.truediv,
+    "new-mod": operator.mod,
+    "new-pow": operator.pow,
+    "new-USub": operator.neg,
+}
 def safe_eval(expr):
     tree=ast.parse(expr,mode="eval")
     return _eval_node(tree.body)
@@ -194,12 +203,13 @@ class Calculator(App):
         yield Header()
         with Vertical():
             yield Static("Calculator", id="title")
-            yield TrackedInput(placeholder="Enter your first number", id="first-number")
-            yield TrackedInput(placeholder="Enter your second number", id="second-number")
-            yield TrackedInput(placeholder="Enter your third number", id="third-number")
-            yield TrackedInput(placeholder="Enter the expression",id="expression-box")
+            yield TrackedInput(placeholder="First number (No brackets)", id="first-number")
+            yield TrackedInput(placeholder="Enter your second number (No brackets)", id="second-number")
+            yield TrackedInput(placeholder="Enter your third number(No brackets)" , id="third-number")
+            yield TrackedInput(placeholder="Only enter Expressions here, not single numbers",id="expression-box")
             yield Static("Enter your numbers:")
             yield Static("History",id="history-box")
+            yield Button("Clear History",variant="error", id="clear-history")
             yield Static("Current_Memory",id="memory-box")
             with Grid():
                 yield Button("1", variant="primary", id="num-1")
@@ -238,7 +248,7 @@ class Calculator(App):
                 yield Button("MR",variant="primary", id="memory-recall")
             with Horizontal():
                 yield Button("+", variant="primary", id="new-plus")
-                yield Button("-", variant="primary", id="new-sub")
+                yield Button("-", variant="primary", id="new-minus")
                 yield Button("*", variant="primary", id="new-multi")
                 yield Button("/", variant="primary", id="new-div")
                 yield Button("%", variant="primary", id="new-mod")
@@ -298,6 +308,10 @@ class Calculator(App):
             for name, (normal, shifted) in labels.items():
                 self.query_one(f"#func-{name}", Button).label = shifted if self.shift_on else normal
             return
+        if btn_id=="clear-history":
+            self.history=[]
+            self.query_one("#history-box",Static).update("")
+            return
         if btn_id.startswith("memory-"):
             result_box= self.query_one("#result-box",Static)
             active=self.query_one(f"#{self.last_active_input_id}",Input)
@@ -334,9 +348,40 @@ class Calculator(App):
             except ValueError:
                 self.query_one("#result-box",Static).update("Please Enter a Number")
             return
+        if btn_id in ("bracket-1","bracket-2"):
+            focused_widget=self.query_one(f"#{self.last_active_input_id}",Input)
+            focused_widget.value+=Symbols[btn_id]
+            return
+        if btn_id in Symbols_ops:
+            if self.last_active_input_id=="expression-box":
+                focused_widget=self.query_one("#expression-box",Input)
+                focused_widget.value+=Symbols[btn_id]
+                return
+            ids =["first-number","second-number","third-number"]
+            raw = [self.query_one(f"#{i}",Input).value.strip() for i in ids]
+            filled=[v for v in raw if v!=""]
+            if len(filled)<2:
+                self.query_one("#result-box",Static).update("Please Enter a Number")
+                return
+
+            try:
+                numbers=[float(v) for v in filled]
+
+            except ValueError:
+                self.query_one("#result-box",Static).update("Please Enter a number")
+                return
+            try:
+                answer = numbers[0]
+                for n in numbers[1:]:
+                    answer=Symbols_ops[btn_id](answer,n)
+                self.show_result (f"#result:{clean_result(answer)}")
+            except(ZeroDivisionError,ValueError,OverflowError):
+                self.query_one("#result-box",Static).update("Math Error")
+                return
+            return
 
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi"] or btn_id in Symbols:
+        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi"]:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
             elif btn_id == "delete":
@@ -351,8 +396,6 @@ class Calculator(App):
                     focused_widget.value += "."
             elif btn_id=="pi":
                 focused_widget.value=str(math.pi)
-            elif btn_id in Symbols:
-                focused_widget.value+= Symbols[btn_id]
             else:
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
@@ -373,7 +416,7 @@ class Calculator(App):
                 result_box.update("Math Error")
             return
         if btn_id =="equals":
-            expr=self.query_one("#expression-box",Input).value
+            expr=self.query_one(f"#{self.last_active_input_id}",Input).value
             try:
                 answer=safe_eval(expr)
                 self.show_result(f"result:{clean_result(answer)}")
