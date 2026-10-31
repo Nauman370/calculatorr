@@ -1,4 +1,6 @@
 import math
+import ast
+import operator
 import sys
 import os
 from PIL import Image
@@ -64,6 +66,34 @@ Shift_Functions = {
     "tan": lambda x: math.degrees(math.atan(x)),
     "log": lambda x: 10 ** x,
 }
+Safe_Operators ={
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Multi: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+    ast.Usub:operator.neg
+}
+def safe_eval(expr):
+    tree=ast.parse(expr,mode="eval")
+    return _eval_node(tree.body)
+def _eval_node(node):
+    if isinstance(node, ast.Constant) and isinstance(node.value(int,float)):
+        return node.value
+    if isinstance(node, ast.BinOp) and type(node.op) in Safe_Operators:
+        return Safe_Operators[type(node.op)](_eval_node(node.left),_eval_node(node.right))
+    if isinstance(node, ast.UnaryOp) and type(node.op) in Safe_Operators:
+        return Safe_Operators[type(node.op)] (_eval_node(node.operand))
+    if isinstance(node, ast.Call):
+        if not isinstance(node.func, ast.Name) or node.func.id not in Functions:
+            raise ValueError("Unknown Function")
+        if len(node.args) !=1 or node.keywords:
+            raise ValueError("Incorrect Expression")
+    
+    
+    
+    
 class Calculator(App):
     CSS = """
     Screen{
@@ -233,9 +263,17 @@ class Calculator(App):
             for name, (normal, shifted) in labels.items():
                 self.query_one(f"#func-{name}", Button).label = shifted if self.shift_on else normal
             return
+        if btn_id=="percentage":
+            try:
+
+                x= float(self.query_one(f"#{self.last_active_input_id}",Input).value)
+                self.show_result(f"result:{clean_result(x/100)}")
+            except ValueError:
+                self.query_one("#result-box",Static).update("Please Enter a Number")
+            return
 
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","percentage","pi"]:
+        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi"]:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
             elif btn_id == "delete":
@@ -248,11 +286,6 @@ class Calculator(App):
             elif btn_id == "decimal":
                 if "." not in focused_widget.value:
                     focused_widget.value += "."
-            elif btn_id =="percentage":
-                try:
-                    focused_widget=clean_result(float(focused_widget.value)/100)
-                except ValueError:
-                    pass
             elif btn_id=="pi":
                 focused_widget.value=str(math.pi)
             else:
