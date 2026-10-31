@@ -51,15 +51,6 @@ Functions = {
     "ln": lambda x: math.log(x),
     "square": lambda x: (x * x),
 }
-Operations ={
-    "operation-1": lambda a, b : a+b,
-    "operation-2": lambda a,b : a-b,
-    "operation-3": lambda a,b : a*b,
-    "operation-4": lambda a,b :a/b,
-    "operation-5": lambda a,b :a%b,
-    "operation-6": lambda a,b :math.pow(a,b),
-}
-
 Shift_Functions = {
     "sin": lambda x: math.degrees(math.asin(x)),
     "cos": lambda x: math.degrees(math.acos(x)),
@@ -75,6 +66,17 @@ Safe_Operators ={
     ast.Pow: operator.pow,
     ast.USub:operator.neg
 }
+Symbols={
+    "new-plus":"+",
+    "new-sub":"-" ,
+    "new-multi":"*",
+    "new-div":"/",
+    "bracket-1":"(",
+    "bracket-2": ")",
+    "new-mod":"%",
+    "new-pow":"**"
+
+    }
 def safe_eval(expr):
     tree=ast.parse(expr,mode="eval")
     return _eval_node(tree.body)
@@ -217,13 +219,15 @@ class Calculator(App):
                 yield Button("ln", variant="success", id="func-ln")
                 yield Button("a^2", variant="success", id="func-square")
             with Horizontal():
-                yield Button("+", variant="primary", id="operation-1")
-                yield Button("-", variant="primary", id="operation-2")
-                yield Button("*", variant="primary", id="operation-3")
-                yield Button("/", variant="primary", id="operation-4")
-                yield Button("%", variant="primary", id="operation-5")
-                yield Button("x^y", variant="primary", id="operation-6")
+                yield Button("+", variant="primary", id="new-plus")
+                yield Button("-", variant="primary", id="new-sub")
+                yield Button("*", variant="primary", id="new-multi")
+                yield Button("/", variant="primary", id="new-div")
+                yield Button("%", variant="primary", id="new-mod")
+                yield Button("x^y", variant="primary", id="new-pow")
                 yield Button("Q.F", variant="primary",id="operation-7")
+                yield Button("(",variant="primary",id="bracket-1")
+                yield Button(")",variant="primary",id="bracket-2")
             yield Static("Answer", id="result-box")
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
@@ -285,7 +289,7 @@ class Calculator(App):
             return
 
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi"]:
+        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi"] or btn_id in Symbols:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
             elif btn_id == "delete":
@@ -300,6 +304,8 @@ class Calculator(App):
                     focused_widget.value += "."
             elif btn_id=="pi":
                 focused_widget.value=str(math.pi)
+            elif btn_id in Symbols:
+                focused_widget.value+= Symbols[btn_id]
             else:
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
@@ -353,16 +359,6 @@ class Calculator(App):
                 x1,x2=result
                 self.show_result(f"# x1:{clean_result(x1)} x2: {clean_result(x2)}")
             return
-        if btn_id not in Operations:
-            return
-        op=Operations[btn_id]
-        try:
-            answer = numbers[0]
-            for n in numbers[1:]:
-                answer = op(answer,n)
-                self.show_result(f"result:{clean_result(answer)}")
-        except (ValueError, ZeroDivisionError, OverflowError):
-            result_box.update("Math error")
 if __name__ == "__main__":
     app = Calculator()
     app.run()
