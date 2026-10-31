@@ -203,10 +203,10 @@ class Calculator(App):
         yield Header()
         with Vertical():
             yield Static("Calculator", id="title")
-            yield TrackedInput(placeholder="First number (No brackets)", id="first-number")
+            yield TrackedInput(placeholder="First number (No brackets )", id="first-number")
             yield TrackedInput(placeholder="Enter your second number (No brackets)", id="second-number")
             yield TrackedInput(placeholder="Enter your third number(No brackets)" , id="third-number")
-            yield TrackedInput(placeholder="Only enter Expressions here, not single numbers",id="expression-box")
+            yield TrackedInput(placeholder="Only enter Expressions here, not single numbers and no trigonometric functios too",id="expression-box")
             yield Static("Enter your numbers:")
             yield Static("History",id="history-box")
             yield Button("Clear History",variant="error", id="clear-history")
