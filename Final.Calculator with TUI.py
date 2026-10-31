@@ -167,7 +167,16 @@ class Calculator(App):
         text-align: left;
         text-style: bold;
         background: $surface;
-        border: round green;}
+        border: round green;
+        }
+    #memory-box{
+        margin-top: 1;
+        padding: 1;
+        text-align: center;
+        background: $surface;
+        text-style: italic;
+        border: round blue;
+        }
     """
 
     def __init__(self):
@@ -176,6 +185,9 @@ class Calculator(App):
         self.last_active_input_id = "first-number"
         self.shift_on = False
         self.history=[]
+        self.memory=0.0
+        self.memory_set=False
+
 
     def compose(self) -> ComposeResult:
         yield Static(id="bg")
@@ -188,6 +200,7 @@ class Calculator(App):
             yield TrackedInput(placeholder="Enter the expression",id="expression-box")
             yield Static("Enter your numbers:")
             yield Static("History",id="history-box")
+            yield Static("Current_Memory",id="memory-box")
             with Grid():
                 yield Button("1", variant="primary", id="num-1")
                 yield Button("2", variant="primary", id="num-2")
@@ -219,6 +232,11 @@ class Calculator(App):
                 yield Button("ln", variant="success", id="func-ln")
                 yield Button("a^2", variant="success", id="func-square")
             with Horizontal():
+                yield Button("MC",variant="primary", id="memory-clear")
+                yield Button("M+",variant="primary", id="memory-add")
+                yield Button("M-",variant="primary", id="memory-sub")
+                yield Button("MR",variant="primary", id="memory-recall")
+            with Horizontal():
                 yield Button("+", variant="primary", id="new-plus")
                 yield Button("-", variant="primary", id="new-sub")
                 yield Button("*", variant="primary", id="new-multi")
@@ -237,6 +255,7 @@ class Calculator(App):
          self.history.append(text)
          latest=self.history[-5:]
          self.query_one("#history-box",Static).update("\n".join(latest))
+    
 
     def on_mount(self) -> None:
 
@@ -279,6 +298,34 @@ class Calculator(App):
             for name, (normal, shifted) in labels.items():
                 self.query_one(f"#func-{name}", Button).label = shifted if self.shift_on else normal
             return
+        if btn_id.startswith("memory-"):
+            result_box= self.query_one("#result-box",Static)
+            active=self.query_one(f"#{self.last_active_input_id}",Input)
+            if btn_id=="memory-clear":
+                self.memory=0.0
+                self.memory_set=False
+            elif btn_id=="memory-recall":
+                if not self.memory_set:
+                    result_box.update("Memory is Empty")
+                    return
+                active.value= clean_result(self.memory)
+            else:
+                try:
+                    value=float(active.value)
+                except ValueError:
+                    result_box.update("Enter a Number")
+                    return
+                if btn_id=="memory-add":
+                    self.memory+=value
+                if btn_id=="memory-sub":
+                    self.memory-=value
+                self.memory_set= True
+            text=f"Memory:{clean_result(self.memory)}" if self.memory_set else "Memory:Empty"
+            self.query_one("#memory-box",Static).update (text)
+            return
+
+
+
         if btn_id=="percentage":
             try:
 
