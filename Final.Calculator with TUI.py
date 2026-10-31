@@ -69,17 +69,17 @@ Shift_Functions = {
 Safe_Operators ={
     ast.Add: operator.add,
     ast.Sub: operator.sub,
-    ast.Multi: operator.mul,
+    ast.Mult: operator.mul,
     ast.Div: operator.truediv,
     ast.Mod: operator.mod,
     ast.Pow: operator.pow,
-    ast.Usub:operator.neg
+    ast.USub:operator.neg
 }
 def safe_eval(expr):
     tree=ast.parse(expr,mode="eval")
     return _eval_node(tree.body)
 def _eval_node(node):
-    if isinstance(node, ast.Constant) and isinstance(node.value(int,float)):
+    if isinstance(node, ast.Constant) and isinstance(node.value,(int,float)):
         return node.value
     if isinstance(node, ast.BinOp) and type(node.op) in Safe_Operators:
         return Safe_Operators[type(node.op)](_eval_node(node.left),_eval_node(node.right))
@@ -90,6 +90,16 @@ def _eval_node(node):
             raise ValueError("Unknown Function")
         if len(node.args) !=1 or node.keywords:
             raise ValueError("Incorrect Expression")
+        arg=_eval_node(node.args[0])
+        return Functions[node.func.id](arg)
+    if isinstance (node, ast.Name):
+        if node.id=="pi":
+
+            return math.pi
+        if node.id== "e":
+            return math.e
+        raise ValueError("Wrong Name")
+    raise ValueError("Invalid Expression")
     
     
     
@@ -173,6 +183,7 @@ class Calculator(App):
             yield TrackedInput(placeholder="Enter your first number", id="first-number")
             yield TrackedInput(placeholder="Enter your second number", id="second-number")
             yield TrackedInput(placeholder="Enter your third number", id="third-number")
+            yield TrackedInput(placeholder="Enter the expression",id="expression-box")
             yield Static("Enter your numbers:")
             yield Static("History",id="history-box")
             with Grid():
@@ -192,6 +203,7 @@ class Calculator(App):
                 yield Button("+/-", variant="primary", id="plus-minus")
                 yield Button("%",variant="primary",id="percentage")
                 yield Button("π",variant="primary",id="pi")
+                yield Button("=",variant="primary",id="equals")
             yield Static("Select your operation:", id="selected-operation")
             with Horizontal():
                 yield Button("sin", variant="success", id="func-sin")
@@ -306,6 +318,14 @@ class Calculator(App):
                 self.show_result(f"result:{clean_result(answer)}")
             except (ValueError, ZeroDivisionError, OverflowError):
                 result_box.update("Math Error")
+            return
+        if btn_id =="equals":
+            expr=self.query_one("#expression-box",Input).value
+            try:
+                answer=safe_eval(expr)
+                self.show_result(f"result:{clean_result(answer)}")
+            except Exception:
+                self.query_one("#result-box",Static).update("Invalid Expression")
             return
         ids=["first-number","second-number","third-number"]
         raw=[self.query_one(f"#{i}",Input).value.strip() for i in ids]
