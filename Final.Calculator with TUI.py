@@ -161,7 +161,7 @@ class Calculator(App):
         self.call_after_refresh(self.update_background)
 
     def on_resize(self, event: events.Resize) -> None:
-        self.update_background()
+        self.call_after_refresh(self.update_background)
 
     def update_background(self) -> None:
         if not self.bg_image:
