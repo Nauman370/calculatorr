@@ -53,6 +53,14 @@ Functions = {
     "ln": lambda x: math.log(x),
     "square": lambda x: (x * x),
 }
+Operations ={
+    "operation-1": lambda a, b : a+b,
+    "operation-2": lambda a,b : a-b,
+    "operation-3": lambda a,b : a*b,
+    "operation-4": lambda a,b :a/b,
+    "operation-5": lambda a,b :a%b,
+    "operation-6": lambda a,b :math.pow(a,b),
+}
 
 Shift_Functions = {
     "sin": lambda x: math.degrees(math.asin(x)),
@@ -60,12 +68,6 @@ Shift_Functions = {
     "tan": lambda x: math.degrees(math.atan(x)),
     "log": lambda x: 10 ** x,
 }
-
-Quadraticformula ={
-    "formula":  Quadratic_Formula
-}
-
-
 class Calculator(App):
     CSS = """
     Screen{
@@ -182,7 +184,7 @@ class Calculator(App):
         if os.path.exists(bg_path):
             self.bg_image = Image.open(bg_path).convert("RGB")
 
-    def on_resize(self, event: events.Resize) -> None:
+    def on_resize(self, event:events.Resize) -> None:
         self.call_after_refresh(self.update_background)
 
     def update_background(self) -> None:
@@ -250,55 +252,42 @@ class Calculator(App):
             except (ValueError, ZeroDivisionError, OverflowError):
                 result_box.update("Math Error")
             return
+        ids=["first-number","second-number","third-number"]
+        raw=[self.query_one(f"#{i}",Input).value.strip() for i in ids]
+        filled=[v for v in  raw if v!=""]
+        if len(filled)< 2:
+            result_box.update("Please Enter 2 numbers")
+            return
+        try:
+            numbers=[float (v) for v in filled]
+        except ValueError:
+            result_box.update("Please Enter a Number")
+            return
         if btn_id=="operation-7":
-            try:
-                a=float(self.query_one("#first-number", Input).value)
-                b=float(self.query_one("#second-number",Input).value)
-                c=float(self.query_one("#third-number",Input).value)
-                result=Quadratic_Formula(a,b,c)
-            except ValueError:
-                result_box.update("Please Enter a Number")
+            if len(numbers) !=3:
+                result_box.update("Quadratic formula needs three numbers")
                 return
+            a,b,c=numbers
+            if a==0:
+                result_box.update("This is not a Quadratic Equation")
+                return
+            result=Quadratic_Formula(a,b,c)
             if result is None:
-                result_box.update("Imaginary Roots")
+                result_box.update("Roots are imaginary")
             else:
                 x1,x2=result
-                result_box.update(f"x1:{clean_result(x1)} x2:{clean_result(x2)}")
+                result_box.update(f"# x1:{clean_result(x1)} x2: {clean_result(x2)}")
             return
-        Number_1st = float(self.query_one("#first-number", Input).value)
-        Number_2nd = float(self.query_one("#second-number", Input).value)
-        Number_3rd = float(self.query_one("#third-number",Input).value)
-        x1,x2=Quadratic_Formula(Number_1st,Number_2nd,Number_3rd)
-        try:
-            x = float(Number_1st)
-            y = float(Number_2nd)
-        except ValueError:
-            result_box.update("Please enter a number")
+        if btn_id not in Operations:
             return
-
+        op=Operations[btn_id]
         try:
-            if y == 0 and btn_id in ["operation-4", "operation-5"]:
-                result_box.update("Math error")
-                return
-            if btn_id == "operation-1":
-                answer = x + y
-            elif btn_id == "operation-2":
-                answer = x - y
-            elif btn_id == "operation-3":
-                answer = x * y
-            elif btn_id == "operation-4":
-                answer = x / y
-            elif btn_id == "operation-5":
-                answer = x % y
-            elif btn_id == "operation-6":
-                answer = math.pow(x, y)
-            else:
-                return
-            result_box.update(f"result:{clean_result(answer)}")
+            answer = numbers[0]
+            for n in numbers[1:]:
+                answer = op(answer,n)
+                result_box.update(f"result:{clean_result(answer)}")
         except (ValueError, ZeroDivisionError, OverflowError):
             result_box.update("Math error")
-
-
 if __name__ == "__main__":
     app = Calculator()
     app.run()
