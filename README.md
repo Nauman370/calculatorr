@@ -2,7 +2,7 @@
 
 A scientific calculator with a TUI, built in Python with [Textual](https://github.com/Textualize/textual).
 
-I initially created it without a TUI and with only basic arithmetic I then developed a basic TUI and then later remade it with a completely new look and new buttons and everything hence it grew into a keypad after that I added decimal and sign support, and a set of scientific functions. Now i have added quadratic formula, an expression box, a shift key for inverse trigonometric functions and antilog, calculation history, memory button
+I initially created it without a TUI and with only basic arithmetic I then developed a basic TUI and then later remade it with a completely new look and new buttons and everything hence it grew into a keypad after that I added decimal and sign support, and a set of scientific functions. Now i have added quadratic formula, an expression box, a shift key for inverse trigonometric functions and antilog, calculation history, memory button and some more feautre like decimal fraction convertor,unit convertor and other
 
 
 ## Features
@@ -18,6 +18,10 @@ Operator buttons (+ - * / % x^y) either insert a symbol (when the expression box
 Memory buttons: M+, M-, MR, MC
 Calculation history, showing the last 5 results, with a Clear History button
 π insert button
+Press Enter in any box as a shortcut for the = button
+ANS button: recalls the last computed answer into the focused box
+S⇔D button: toggles the displayed result between decimal and simplified fraction form
+Unit conversions: km↔mi, kg↔lbs, °C↔°F, ft↔m
 Percent key (divides the focused box's value by 100)
 Error handling throughout: invalid input, division by zero, invalid function input (e.g. negative square roots), an oversized factorial, and invalid expressions all show a clear message instead of crashing
 Optional background image, rendered with rich-pixels, that resizes with the window
@@ -46,3 +50,7 @@ A standalone Windows executable is available on the [Releases page](../../releas
 - [Textual](https://github.com/Textualize/textual) — TUI framework
 - [PyInstaller](https://pyinstaller.org/) — packaging into a standalone executable
 - Python's standard library: math for the scientific functions, ast and operator to safely parse and evaluate typed expressions without using eval(), os and sys for file paths and bundling the background image into the executable
+
+- Author
+
+Nauman370
