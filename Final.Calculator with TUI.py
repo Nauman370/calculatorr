@@ -3,6 +3,7 @@ import ast
 import operator
 import sys
 import os
+from fractions import Fraction
 from PIL import Image
 from rich_pixels import Pixels
 from textual import events
@@ -196,6 +197,7 @@ class Calculator(App):
         self.memory=0.0
         self.memory_set=False
         self.last_answer=None
+        self.show_fraction=False
 
 
     def compose(self) -> ComposeResult:
@@ -248,6 +250,7 @@ class Calculator(App):
                 yield Button("M-",variant="primary", id="memory-sub")
                 yield Button("MR",variant="primary", id="memory-recall")
                 yield Button("ANS",variant="primary",id="ans")
+                yield Button("S⇔D", variant="primary",id="sd-shifter")
             with Horizontal():
                 yield Button("+", variant="primary", id="new-plus")
                 yield Button("-", variant="primary", id="new-minus")
@@ -335,6 +338,11 @@ class Calculator(App):
             active=self.query_one(f"#{self.last_active_input_id}", Input)
             active.value+=clean_result(self.last_answer)
             return
+        if btn_id=="sd-shifter":
+            if self.last_answer is None:
+                self.query_one("#result-box",Static).update("Nothing to convert")
+                return
+            result_box=self.query_one("#result-box".Static)
         if btn_id.startswith("memory-"):
             result_box= self.query_one("#result-box",Static)
             active=self.query_one(f"#{self.last_active_input_id}",Input)
