@@ -68,7 +68,7 @@ Safe_Operators ={
 }
 Symbols={
     "new-plus":"+",
-    "new-sub":"-" ,
+    "new-minus":"-" ,
     "new-multi":"*",
     "new-div":"/",
     "bracket-1":"(",
@@ -187,7 +187,6 @@ class Calculator(App):
         border: round blue;
         }
     """
-
     def __init__(self):
         super().__init__()
         self.bg_image = None
@@ -228,6 +227,7 @@ class Calculator(App):
                 yield Button("+/-", variant="primary", id="plus-minus")
                 yield Button("%",variant="primary",id="percentage")
                 yield Button("π",variant="primary",id="pi")
+                yield Button("e",variant="primary",id="eul-number")
                 yield Button("=",variant="primary",id="equals")
             yield Static("Select your operation:", id="selected-operation")
             with Horizontal():
@@ -265,8 +265,19 @@ class Calculator(App):
          self.history.append(text)
          latest=self.history[-5:]
          self.query_one("#history-box",Static).update("\n".join(latest))
+    def ent_equals(self):
+        active=self.query_one(f"#{self.last_active_input_id}",Input)
+        expr=active.value
+        try:
+            answer=safe_eval(expr)
+            active.value=clean_result(answer)
+            self.show_result(f"result:{clean_result(answer)}")
+        except:
+            self.query_one(f"#result-box",Static).update("Invalid Expression")
     
-
+    def action_submit(self)-> None:
+        self.ent_equals()
+    
     def on_mount(self) -> None:
 
         bg_path = resource_path("bg.png")
@@ -289,7 +300,8 @@ class Calculator(App):
             )
         except Exception:
             return
-
+    def on_input_submitted(self,event: Input.Submitted)-> None:
+        self.ent_equals()
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
 
@@ -337,9 +349,6 @@ class Calculator(App):
             text=f"Memory:{clean_result(self.memory)}" if self.memory_set else "Memory:Empty"
             self.query_one("#memory-box",Static).update (text)
             return
-
-
-
         if btn_id=="percentage":
             try:
 
@@ -381,7 +390,7 @@ class Calculator(App):
             return
 
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
-        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi"]:
+        if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi","eul-number"]:
             if btn_id == "remove-everything":
                 focused_widget.value = ""
             elif btn_id == "delete":
@@ -396,6 +405,8 @@ class Calculator(App):
                     focused_widget.value += "."
             elif btn_id=="pi":
                 focused_widget.value=str(math.pi)
+            elif btn_id=="eul-number":
+                focused_widget.value=str(math.e)
             else:
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
@@ -416,12 +427,7 @@ class Calculator(App):
                 result_box.update("Math Error")
             return
         if btn_id =="equals":
-            expr=self.query_one(f"#{self.last_active_input_id}",Input).value
-            try:
-                answer=safe_eval(expr)
-                self.show_result(f"result:{clean_result(answer)}")
-            except Exception:
-                self.query_one("#result-box",Static).update("Invalid Expression")
+            self.ent_equals()
             return
         ids=["first-number","second-number","third-number"]
         raw=[self.query_one(f"#{i}",Input).value.strip() for i in ids]
