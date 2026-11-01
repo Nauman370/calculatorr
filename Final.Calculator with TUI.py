@@ -58,6 +58,17 @@ Shift_Functions = {
     "tan": lambda x: math.degrees(math.atan(x)),
     "log": lambda x: 10 ** x,
 }
+Conversions={
+    "km-mi": lambda x: x* 0.621371,
+    "mi-km": lambda x: x/0.621371,
+    "kg-lbs": lambda x: x*2.204623,
+    "lbs-kg" : lambda x: x/2.204623,
+    "Celsius-Fahrenheit": lambda x:x*9/5 +32,
+    "Fahrenheit-Celsius": lambda x:(x-32)*5/9,
+    "ft-m":lambda x:x/3.280840,
+    "m-ft": lambda x:x*3.280840,
+}
+
 Safe_Operators ={
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -198,8 +209,6 @@ class Calculator(App):
         self.memory_set=False
         self.last_answer=None
         self.show_fraction=False
-
-
     def compose(self) -> ComposeResult:
         yield Static(id="bg")
         yield Header()
@@ -261,10 +270,18 @@ class Calculator(App):
                 yield Button("Q.F", variant="primary",id="operation-7")
                 yield Button("(",variant="primary",id="bracket-1")
                 yield Button(")",variant="primary",id="bracket-2")
+            with Horizontal():
+                yield Button("Km-Mi",variant="primary",id="conv-km-mi")
+                yield Button("Mi-KM",variant="primary",id="conv-mi-km")
+                yield Button("Kg-lbs",variant="primary",id="conv-kg-lbs")
+                yield Button("lbs-Kg",variant="primary",id="conv-lbs-kg")
+                yield Button("Cel-Fhr",variant="primary",id="conv-Celsius-Fahrenheit")
+                yield Button("Fhr-Cel",variant="primary",id="conv-Fahrenheit-Celsius")
+                yield Button("feet-Meter",variant="primary",id="conv-ft-m")
+                yield Button("Meter-feet", variant="primary",id="conv-m-ft")
             yield Static("Answer", id="result-box")
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
-
     def show_result(self,text,value=None):
          self.query_one("#result-box",Static).update(text)
          self.history.append(text)
@@ -295,7 +312,6 @@ class Calculator(App):
 
     def on_resize(self, event:events.Resize) -> None:
         self.call_after_refresh(self.update_background)
-
     def update_background(self) -> None:
         if not self.bg_image:
             return
@@ -312,11 +328,9 @@ class Calculator(App):
         self.ent_equals()
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id
-
         if btn_id == "quit-button":
             self.exit()
             return
-
         if btn_id == "shift-toggle":
             self.shift_on = not self.shift_on
             labels = {
@@ -339,8 +353,7 @@ class Calculator(App):
             active=self.query_one(f"#{self.last_active_input_id}", Input)
             active.value+=clean_result(self.last_answer)
             return
-        if btn_id=="sd-shifter":
-                
+        if btn_id=="sd-shifter":    
                 if self.last_answer is None:
                     self.query_one("#result-box",Static).update("Nothing to convert")
                     return
@@ -359,6 +372,17 @@ class Calculator(App):
                 else:
                     result_box.update(f"result:{clean_result(self.last_answer)}")
                 return
+        if btn_id.startswith("conv-"):
+            name=btn_id[5:]
+            result_box=self.query_one("#result-box",Static)
+            try:
+                x=float(self.query_one(f"#{self.last_active_input_id}",Input).value)
+            except ValueError:
+                result_box.update("Please Enter a number")
+                return
+            answer=Conversions[name](x)
+            self.show_result(f"{name}:{clean_result(answer)}",answer)
+            return
 
         if btn_id.startswith("memory-"):
             result_box= self.query_one("#result-box",Static)
@@ -387,7 +411,6 @@ class Calculator(App):
             return
         if btn_id=="percentage":
             try:
-
                 x= float(self.query_one(f"#{self.last_active_input_id}",Input).value)
                 self.show_result(f"result:{clean_result(x/100)}",x/100)
             except ValueError:
@@ -408,10 +431,8 @@ class Calculator(App):
             if len(filled)<2:
                 self.query_one("#result-box",Static).update("Please Enter a Number")
                 return
-
             try:
                 numbers=[float(v) for v in filled]
-
             except ValueError:
                 self.query_one("#result-box",Static).update("Please Enter a number")
                 return
@@ -424,7 +445,6 @@ class Calculator(App):
                 self.query_one("#result-box",Static).update("Math Error")
                 return
             return
-
         focused_widget = self.query_one(f"#{self.last_active_input_id}", Input)
         if btn_id.startswith("num-") or btn_id in ["remove-everything", "delete", "decimal", "plus-minus","pi","eul-number"]:
             if btn_id == "remove-everything":
@@ -447,9 +467,7 @@ class Calculator(App):
                 digit = btn_id.split("-")[1]
                 focused_widget.value += digit
             return
-
         result_box = self.query_one("#result-box", Static)
-
         if btn_id.startswith("func-"):
             name = btn_id.split("-")[1]
             try:
