@@ -195,6 +195,7 @@ class Calculator(App):
         self.history=[]
         self.memory=0.0
         self.memory_set=False
+        self.last_answer=None
 
 
     def compose(self) -> ComposeResult:
@@ -246,6 +247,7 @@ class Calculator(App):
                 yield Button("M+",variant="primary", id="memory-add")
                 yield Button("M-",variant="primary", id="memory-sub")
                 yield Button("MR",variant="primary", id="memory-recall")
+                yield Button("ANS",variant="primary",id="ans")
             with Horizontal():
                 yield Button("+", variant="primary", id="new-plus")
                 yield Button("-", variant="primary", id="new-minus")
@@ -260,18 +262,20 @@ class Calculator(App):
             yield Button("Exit", variant="error", id="quit-button")
         yield Footer()
 
-    def show_result(self,text):
+    def show_result(self,text,value=None):
          self.query_one("#result-box",Static).update(text)
          self.history.append(text)
          latest=self.history[-5:]
          self.query_one("#history-box",Static).update("\n".join(latest))
+         if value is not None:
+             self.last_answer= value
     def ent_equals(self):
         active=self.query_one(f"#{self.last_active_input_id}",Input)
         expr=active.value
         try:
             answer=safe_eval(expr)
             active.value=clean_result(answer)
-            self.show_result(f"result:{clean_result(answer)}")
+            self.show_result(f"result:{clean_result(answer)}",answer)
         except:
             self.query_one(f"#result-box",Static).update("Invalid Expression")
     
@@ -324,6 +328,13 @@ class Calculator(App):
             self.history=[]
             self.query_one("#history-box",Static).update("")
             return
+        if btn_id=="ans":
+            if self.last_answer is None:
+                self.query_one("#result-box",Static).update("No Answer Yet")
+                return
+            active=self.query_one(f"#{self.last_active_input_id}", Input)
+            active.value+=clean_result(self.last_answer)
+            return
         if btn_id.startswith("memory-"):
             result_box= self.query_one("#result-box",Static)
             active=self.query_one(f"#{self.last_active_input_id}",Input)
@@ -353,7 +364,7 @@ class Calculator(App):
             try:
 
                 x= float(self.query_one(f"#{self.last_active_input_id}",Input).value)
-                self.show_result(f"result:{clean_result(x/100)}")
+                self.show_result(f"result:{clean_result(x/100)}",x/100)
             except ValueError:
                 self.query_one("#result-box",Static).update("Please Enter a Number")
             return
@@ -383,7 +394,7 @@ class Calculator(App):
                 answer = numbers[0]
                 for n in numbers[1:]:
                     answer=Symbols_ops[btn_id](answer,n)
-                self.show_result (f"#result:{clean_result(answer)}")
+                self.show_result (f"#result:{clean_result(answer)}",answer)
             except(ZeroDivisionError,ValueError,OverflowError):
                 self.query_one("#result-box",Static).update("Math Error")
                 return
@@ -422,7 +433,7 @@ class Calculator(App):
                     answer = Shift_Functions[name](x)
                 else:
                     answer = Functions[name](x)
-                self.show_result(f"result:{clean_result(answer)}")
+                self.show_result(f"result:{clean_result(answer)}",answer)
             except (ValueError, ZeroDivisionError, OverflowError):
                 result_box.update("Math Error")
             return
