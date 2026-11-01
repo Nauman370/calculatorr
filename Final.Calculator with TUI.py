@@ -272,6 +272,7 @@ class Calculator(App):
          self.query_one("#history-box",Static).update("\n".join(latest))
          if value is not None:
              self.last_answer= value
+         self.show_fraction=False
     def ent_equals(self):
         active=self.query_one(f"#{self.last_active_input_id}",Input)
         expr=active.value
@@ -339,10 +340,26 @@ class Calculator(App):
             active.value+=clean_result(self.last_answer)
             return
         if btn_id=="sd-shifter":
-            if self.last_answer is None:
-                self.query_one("#result-box",Static).update("Nothing to convert")
+                
+                if self.last_answer is None:
+                    self.query_one("#result-box",Static).update("Nothing to convert")
+                    return
+                result_box=self.query_one("#result-box",Static)
+                self.show_fraction= not self.show_fraction
+                if self.show_fraction:
+                    frac=Fraction(self.last_answer).limit_denominator(1000)
+                    if abs(float(frac)- self.last_answer)>1e-9:
+                        self.show_fraction=False
+                        result_box.update("Not a Simple Fraction")
+                        return
+                    if frac.denominator== 1:
+                        result_box.update(f"result:{frac.numerator}")
+                    else:
+                        result_box.update(f"result:{frac.numerator}/{frac.denominator}")
+                else:
+                    result_box.update(f"result:{clean_result(self.last_answer)}")
                 return
-            result_box=self.query_one("#result-box".Static)
+
         if btn_id.startswith("memory-"):
             result_box= self.query_one("#result-box",Static)
             active=self.query_one(f"#{self.last_active_input_id}",Input)
